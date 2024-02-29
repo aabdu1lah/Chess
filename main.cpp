@@ -15,6 +15,7 @@ enum PIECES {
     BBISHOP,
     BROOK,
     BPAWN,
+    NONE,
 };
 
 class Piece {
@@ -25,8 +26,9 @@ class Piece {
 
 public:
     raylib::Texture2D texture;
+    bool selected = false;
 
-    // Piece() = default;
+    Piece() = default;
     Piece(const char* path, int x, int y) {
         raylib::Image image(path);
         image.Resize(width, height);
@@ -43,8 +45,10 @@ public:
         currentY = y;
     }
 
-    void draw() {
-        texture.Draw(currentX, currentY);
+    void draw(int x = -1, int y = -1) {
+        if (x == -1) x = currentX;
+        if (y == -1) y = currentY;
+        texture.Draw(x, y);
     }
 
     void setX(int x) {
@@ -55,11 +59,11 @@ public:
         currentY = y;
     }
 
-    int getX(int x) {
+    int getX() {
         return currentX;
     }
 
-    int getY(int y) {
+    int getY() {
         return currentY;
     }
 };
@@ -104,12 +108,27 @@ public:
     int x;
     int y;
     PIECES currentPiece;
+
+    raylib::Vector2 getVector() {
+        raylib::Vector2 vector;
+        vector.SetX(x);
+        vector.SetY(y);
+        return vector;
+    }
 };
 
 class Board {
     raylib::Texture2D texture;
     Tile tiles[8][8];
     std::vector<Piece> pieces;
+
+    raylib::Mouse mouse = raylib::Mouse();
+    raylib::Vector2 mousePos;
+
+    PIECES currentType;
+    Piece* currentPiece;
+    Tile* currentTile;
+    bool pieceSelected = false;
 
     const int width = 600;
     const int height = 600;
@@ -144,16 +163,17 @@ public:
                 currentTile->column = x/dx;
                 currentTile->x = x;
                 currentTile->y = y;
+                currentTile->currentPiece = NONE;
 
                 if (currentTile->row == 1) {
                     currentTile->currentPiece = BPAWN;
                     pieces.push_back(Pawn(blackPawnPath, x, y));
                 } else if (currentTile->row == 6) {
-                    currentTile->currentPiece == WPAWN;
+                    currentTile->currentPiece = WPAWN;
                     pieces.push_back(Pawn(whitePawnPath, x, y));
                 } else if (currentTile->row == 7) {
                     if (currentTile->column == 0 || currentTile->column == 7) {
-                        currentTile->currentPiece == WROOK;
+                        currentTile->currentPiece = WROOK;
                         pieces.push_back(Rook(whiteRookPath, x, y));
                     } else if (currentTile->column == 1 || currentTile->column == 6) {
                         currentTile->currentPiece = WKNIGHT;
@@ -162,15 +182,15 @@ public:
                         currentTile->currentPiece = WBISHOP;
                         pieces.push_back(Bishop(whiteBishopPath, x, y));
                     } else if (currentTile->column == 3) {
-                        currentTile->currentPiece == WQUEEN;
+                        currentTile->currentPiece = WQUEEN;
                         pieces.push_back(Queen(whiteQueenPath, x, y));
                     } else if (currentTile->column == 4) {
-                        currentTile->currentPiece == WKING;
+                        currentTile->currentPiece = WKING;
                         pieces.push_back(King(whiteKingPath, x, y));
                     }
                 } else if (currentTile->row == 0) {
                     if (currentTile->column == 0 || currentTile->column == 7) {
-                        currentTile->currentPiece == BROOK;
+                        currentTile->currentPiece = BROOK;
                         pieces.push_back(Rook(blackRookPath, x, y));
                     } else if (currentTile->column == 1 || currentTile->column == 6) {
                         currentTile->currentPiece = BKNIGHT;
@@ -179,10 +199,10 @@ public:
                         currentTile->currentPiece = BBISHOP;
                         pieces.push_back(Bishop(blackBishopPath, x, y));
                     } else if (currentTile->column == 3) {
-                        currentTile->currentPiece == BQUEEN;
+                        currentTile->currentPiece = BQUEEN;
                         pieces.push_back(Queen(blackQueenPath, x, y));
                     } else if (currentTile->column == 4) {
-                        currentTile->currentPiece == BKING;
+                        currentTile->currentPiece = BKING;
                         pieces.push_back(King(blackKingPath, x, y));
                     }
                 }
@@ -190,10 +210,47 @@ public:
         }
     }
 
+    Tile* getHoverTile(raylib::Vector2 vector) {
+        for (auto &tilerow : tiles) {
+            for (auto tilecol : tilerow) {
+                if (vector.x >= tilecol.x && vector.x <= tilecol.x + dx) {
+                    if (vector.y >= tilecol.y && vector.y <= tilecol.y + dy) {
+                        return &tilecol;
+                    }
+                }
+            }
+        }
+    }
+
     void draw(int x, int y) {
+        mousePos = mouse.GetPosition();
+ 
         texture.Draw(x, y);
         for (int i=0; i<pieces.size(); i++) {
-            pieces[i].draw();
+            if (!pieces[i].selected) pieces[i].draw();
+        }
+
+        if (mouse.IsButtonPressed(MOUSE_LEFT_BUTTON) && !pieceSelected) {
+            currentTile = getHoverTile(mousePos);
+            for (int i=0; i<pieces.size(); i++) {
+                if (pieces[i].getX() == currentTile->x && pieces[i].getY() == currentTile->y) {
+                    pieces[i].selected = true;
+                    pieceSelected = true;
+                    currentPiece = &pieces[i];
+                }
+            }
+        }
+
+        if (pieceSelected) {
+            currentPiece->draw(mousePos.GetX(), mousePos.GetY());
+        }
+
+        if (mouse.IsButtonReleased(MOUSE_BUTTON_LEFT) && pieceSelected) {
+            
+
+            pieceSelected = false;
+            currentPiece->selected = false;
+            currentPiece = nullptr;
         }
     }
 };
