@@ -1,6 +1,5 @@
 #pragma once
 #include "..\boardSquare\boardSquare.h"
-#include "..\pieces\pieces.h"
 
 class Board {
     const char* whitePawnPath = "assets\\white_pawn.png";
@@ -30,12 +29,14 @@ class Board {
     raylib::Vector2 mousePos;
 
     PieceType currentType;
-    Piece* currentPiece;
-    Tile* currentTile;
+    PieceType enpassant = NONE;
+    BoardSquare* currentSquare;
     bool pieceSelected = false;
 
 public:
     Board(const char* path);
     ~Board();
+    BoardSquare* getHoverSquare(raylib::Vector2 vector);
+    BoardSquare* getSquare(int row, int column);
     void draw(int x, int y);
 };

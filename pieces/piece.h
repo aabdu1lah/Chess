@@ -7,11 +7,14 @@ class Piece {
     const int height = 75;
     PieceType type = NONE;
     bool selected = false;
+    bool moved = false;
 
     int row;
     int column;
 
     raylib::Texture2D texture;
+
+    bool movePawn(Piece* piece, PieceType enpassant);
 
 public:
     Piece();
@@ -19,6 +22,7 @@ public:
     Piece(raylib::Image &image, int r, int c);
     
     void draw(int x, int y);
+    bool move(Piece* piece, PieceType enpassant = NONE);
 
     void setRow(int r);
     void setColumn(int c);

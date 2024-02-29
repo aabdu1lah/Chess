@@ -1,5 +1,5 @@
-#include "..\tile\tile.h"
 #include "..\pieces\piece.h"
+#include "..\tile\tile.h"
 
 class BoardSquare {
     Tile* tile;
