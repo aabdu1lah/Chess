@@ -12,15 +12,6 @@ Piece::Piece(const char* path, int r, int c, int a, int b) {
     y = b;
 }
 
-Piece::Piece(raylib::Image &image, int r, int c, int a, int b) {
-    texture.Load(image);
-
-    row = r;
-    column = c;
-    x = a;
-    y = b;
-}
-
 void Piece::draw(int a, int b) {
     if (a == -1) a = x;
     if (b == -1) b = y;
@@ -96,10 +87,6 @@ int Piece::getHeight() {
     return height;
 }
 
-void Piece::setTexture(raylib::Texture2D &t) {
-    texture = std::move(t);
-}
-
 raylib::Texture2D* Piece::getTexture() {
     return &texture;
 }
@@ -120,13 +107,10 @@ void Piece::swap(Piece* p) {
 
     getTexture()->Load(i);
     p->getTexture()->Load(i2);
-}
 
-bool Piece::move(Piece* piece, PieceType enpassant) {
-    if (getType() == NONE) return false;
-    if (getType() == WPAWN || getType() == BPAWN) return movePawn(piece, enpassant);
-
-    return false;
+    bool t = p->hasMoved();
+    p->setMoved(hasMoved());
+    setMoved(t);
 }
 
 bool Piece::movePawn(Piece* piece, PieceType enpassant = NONE) {

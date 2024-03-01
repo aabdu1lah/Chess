@@ -21,11 +21,9 @@ class Piece {
 public:
     Piece();
     Piece(const char* path, int r, int c, int a, int b);
-    Piece(raylib::Image &image, int r, int c, int a, int b);
     
     void draw(int a, int b);
     void draw(raylib::Vector2 v);
-    bool move(Piece* piece, PieceType enpassant = NONE);
     void swap(Piece* p);
 
     void setRow(int r);
@@ -35,7 +33,6 @@ public:
     void setMoved(bool m);
     void setX(int a);
     void setY(int a);
-    void setTexture(raylib::Texture2D &t);
 
     PieceType getType();
     raylib::Texture2D* getTexture();

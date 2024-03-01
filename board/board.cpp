@@ -1,4 +1,5 @@
 #include "board.h"
+#include <cmath>
 
 Board::Board(const char* path) {
     raylib::Image image(path);
@@ -127,17 +128,41 @@ void Board::move(Piece* c, Piece* n) {
     }
 }
 
+bool Board::emptySpacesInBetween(PieceType t, Piece* c, Piece* n) {
+    int cr = c->getRow();
+    int cc = c->getColumn();
+    int nr = n->getRow();
+    int nc = n->getColumn();
+
+    if (t == WPAWN) {
+        cr = std::max(c->getRow(), n->getRow());
+        nr = std::min(c->getRow(), n->getRow());
+
+        for (int i=cr-1; i>=nr; i--) {
+            if (pieces[i][cc]->getType() != NONE) {
+                return false;
+            }
+        }
+    }
+    
+    if (t == BPAWN) {
+        nr = std::max(c->getRow(), n->getRow());
+        cr = std::min(c->getRow(), n->getRow());
+
+        for (int i=cr+1; i<=nr; i++) {
+            if (pieces[i][cc]->getType() != NONE) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 void Board::movePawn(Piece* c, Piece* n) {
     int dr = n->getRow() - c->getRow();
     int dc = n->getColumn() - c->getColumn();
-
-    if (c->hasMoved()) {
-        
-
-    } else {
-
-    }
-
+    
     int nextRow;
     if (c->getType() == WPAWN) {
         nextRow = c->getRow() - 1;
@@ -145,7 +170,20 @@ void Board::movePawn(Piece* c, Piece* n) {
     if (c->getType() == BPAWN) {
         nextRow = c->getRow() + 1;
     }
-    std::cout << nextRow;
+
+    if (!c->hasMoved()) {
+        if (dr == -2 && c->getType() == WPAWN) {
+            if (emptySpacesInBetween(WPAWN, c, n) && c->getColumn() == n->getColumn()) {
+                c->swap(n);
+                n->setMoved(true);
+            }            
+        } else if (dr == 2 && c->getType() == BPAWN) {
+            if (emptySpacesInBetween(BPAWN, c, n) && c->getColumn() == n->getColumn()) {
+                c->swap(n);
+                n->setMoved(true);
+            }
+        }
+    }
 
     if (getPiece(nextRow, c->getColumn())->getType() == NONE && c->getColumn() == n->getColumn()) {
         if ((dr == -1 && c->getType() == WPAWN) || (dr == 1 && c->getType() == BPAWN)) {

@@ -38,10 +38,13 @@ class Board {
 public:
     Board(const char* path);
     ~Board();
+
     Piece* getPiece(raylib::Vector2 vector);
     Piece* getPiece(int row, int column);
-    void draw(int x, int y);
     raylib::Texture2D* toTexture(const char* path, int width, int height);
+    bool emptySpacesInBetween(PieceType t, Piece* c, Piece* n);
+
+    void draw(int x, int y);
     void move(Piece* c, Piece* n);
     void movePawn(Piece* c, Piece* n);
 };
