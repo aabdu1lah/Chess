@@ -112,31 +112,3 @@ void Piece::swap(Piece* p) {
     p->setMoved(hasMoved());
     setMoved(t);
 }
-
-bool Piece::movePawn(Piece* piece, PieceType enpassant = NONE) {
-    int rows = piece->getRow() - getRow();
-    int cols = piece->getColumn() - getColumn();
-
-    if (!moved) {
-        if (piece->getColumn() == getColumn()) {
-            if ((rows == -2 && getType() == WPAWN) || (rows == 2 && getType() == BPAWN) && piece->getType() == NONE) {
-                moved = true;
-                return true;
-            }
-        } else if ((rows == -2 && (cols == -1 || cols == 1) && getType() == WPAWN) || (rows == 2 && (cols == -1 || cols == 1) && getType() == BPAWN)) {
-            if ((enpassant == WPAWN && getType() == BPAWN) || (enpassant == BPAWN && getType() == WPAWN)) {
-                moved = true;
-                return true;
-            }
-        }
-    }
-
-    if (piece->getColumn() == getColumn()) {
-        if ((rows == -1 && getType() == WPAWN) || (rows == 1 && getType() == BPAWN) && piece->getType() == NONE) {
-            moved = true;
-            return true;
-        }
-    }
-
-    return false;
-}

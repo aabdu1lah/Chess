@@ -6,6 +6,7 @@ class Piece {
     const int width = 75;
     const int height = 75;
 
+    raylib::Texture2D texture;
     PieceType type = NONE;
     bool selected = false;
     bool moved = false;
@@ -14,9 +15,6 @@ class Piece {
     int column;
     int x;
     int y;
-
-    raylib::Texture2D texture;
-    bool movePawn(Piece* piece, PieceType enpassant);
 
 public:
     Piece();

@@ -41,10 +41,11 @@ public:
 
     Piece* getPiece(raylib::Vector2 vector);
     Piece* getPiece(int row, int column);
-    raylib::Texture2D* toTexture(const char* path, int width, int height);
     bool emptySpacesInBetween(PieceType t, Piece* c, Piece* n);
 
     void draw(int x, int y);
+    
     void move(Piece* c, Piece* n);
     void movePawn(Piece* c, Piece* n);
+    void moveRook(Piece* c, Piece* n);
 };
