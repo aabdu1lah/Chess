@@ -5,32 +5,46 @@
 class Piece {
     const int width = 75;
     const int height = 75;
+
     PieceType type = NONE;
     bool selected = false;
     bool moved = false;
 
     int row;
     int column;
+    int x;
+    int y;
 
     raylib::Texture2D texture;
-
     bool movePawn(Piece* piece, PieceType enpassant);
 
 public:
     Piece();
-    Piece(const char* path, int r, int c);
-    Piece(raylib::Image &image, int r, int c);
+    Piece(const char* path, int r, int c, int a, int b);
+    Piece(raylib::Image &image, int r, int c, int a, int b);
     
-    void draw(int x, int y);
+    void draw(int a, int b);
+    void draw(raylib::Vector2 v);
     bool move(Piece* piece, PieceType enpassant = NONE);
+    void swap(Piece* p);
 
     void setRow(int r);
     void setColumn(int c);
     void setType(PieceType t);
     void setSelected(bool b);
+    void setMoved(bool m);
+    void setX(int a);
+    void setY(int a);
+    void setTexture(raylib::Texture2D &t);
 
+    PieceType getType();
+    raylib::Texture2D* getTexture();
+    bool isSelected();
+    bool hasMoved();
     int getRow();
     int getColumn();
-    PieceType getType();
-    bool isSelected();
+    int getX();
+    int getY();
+    int getWidth();
+    int getHeight();
 };

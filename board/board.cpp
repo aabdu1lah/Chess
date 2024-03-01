@@ -12,66 +12,51 @@ Board::Board(const char* path) {
             row = y/dy;
             column = x/dx;
 
-            Tile* currentTile = new Tile();
-            Piece* currentPiece = nullptr;
+            currentPiece = nullptr;
 
-            currentTile->setRow(row);
-            currentTile->setColumn(column);
-            currentTile->setX(x);
-            currentTile->setY(y);
-            currentTile->setType(NONE);
-
-            if (currentTile->getRow() == 1) {
-                currentTile->setType(BPAWN);
-                currentPiece = new Piece(blackPawnPath, row, column);
-            } else if (currentTile->getRow() == 6) {
-                currentTile->setType(WPAWN);
-                currentPiece = new Piece(whitePawnPath, row, column);
-            } else if (currentTile->getRow() == 7) {
-                if (currentTile->getColumn() == 0 || currentTile->getColumn() == 7) {
-                    currentTile->setType(WROOK);
-                    currentPiece = new Piece(whiteRookPath, row, column);
-                } else if (currentTile->getColumn() == 1 || currentTile->getColumn() == 6) {
-                    currentTile->setType(WKNIGHT);
-                    currentPiece = new Piece(whiteKnightPath, row, column);
-                } else if (currentTile->getColumn() == 2 || currentTile->getColumn() == 5) {
-                    currentTile->setType(WBISHOP);
-                    currentPiece = new Piece(whiteBishopPath, row, column);
-                } else if (currentTile->getColumn() == 3) {
-                    currentTile->setType(WQUEEN);
-                    currentPiece = new Piece(whiteQueenPath, row, column);
-                } else if (currentTile->getColumn() == 4) {
-                    currentTile->setType(WKING);
-                    currentPiece = new Piece(whiteKingPath, row, column);
+            if (row == 1) {
+                currentPiece = new Piece(blackPawnPath, row, column, x, y);
+                currentPiece->setType(BPAWN);
+            } else if (row == 6) {
+                currentPiece = new Piece(whitePawnPath, row, column, x, y);
+                currentPiece->setType(WPAWN);
+            } else if (row == 7) {
+                if (column == 0 || column == 7) {
+                    currentPiece = new Piece(whiteRookPath, row, column, x, y);
+                    currentPiece->setType(WROOK);
+                } else if (column == 1 || column == 6) {
+                    currentPiece = new Piece(whiteKnightPath, row, column, x, y);
+                    currentPiece->setType(WKNIGHT);
+                } else if (column == 2 || column == 5) {
+                    currentPiece = new Piece(whiteBishopPath, row, column, x, y);
+                    currentPiece->setType(WBISHOP);
+                } else if (column == 3) {
+                    currentPiece = new Piece(whiteQueenPath, row, column, x, y);
+                    currentPiece->setType(WQUEEN);
+                } else if (column == 4) {
+                    currentPiece = new Piece(whiteKingPath, row, column, x, y);
+                    currentPiece->setType(WKING);
                 }
-            } else if (currentTile->getRow() == 0) {
-                if (currentTile->getColumn() == 0 || currentTile->getColumn() == 7) {
-                    currentTile->setType(BROOK);
-                    currentPiece = new Piece(blackRookPath, row, column);
-                } else if (currentTile->getColumn() == 1 || currentTile->getColumn() == 6) {
-                    currentTile->setType(BKNIGHT);
-                    currentPiece = new Piece(blackKnightPath, row, column);
-                } else if (currentTile->getColumn() == 2 || currentTile->getColumn() == 5) {
-                    currentTile->setType(BBISHOP);
-                    currentPiece = new Piece(blackBishopPath, row, column);
-                } else if (currentTile->getColumn() == 3) {
-                    currentTile->setType(BQUEEN);
-                    currentPiece = new Piece(blackQueenPath, row, column);
-                } else if (currentTile->getColumn() == 4) {
-                    currentTile->setType(BKING);
-                    currentPiece = new Piece(blackKingPath, row, column);
+            } else if (row == 0) {
+                if (column == 0 || column == 7) {
+                    currentPiece = new Piece(blackRookPath, row, column, x, y);
+                    currentPiece->setType(BROOK);
+                } else if (column == 1 || column == 6) {
+                    currentPiece = new Piece(blackKnightPath, row, column, x, y);
+                    currentPiece->setType(BKNIGHT);
+                } else if (column == 2 || column == 5) {
+                    currentPiece = new Piece(blackBishopPath, row, column, x, y);
+                    currentPiece->setType(BBISHOP);
+                } else if (column == 3) {
+                    currentPiece = new Piece(blackQueenPath, row, column, x, y);
+                    currentPiece->setType(BQUEEN);
+                } else if (column == 4) {
+                    currentPiece = new Piece(blackKingPath, row, column, x, y);
+                    currentPiece->setType(BKING);
                 }
             }
-
-            if (currentPiece == nullptr) currentPiece = new Piece();
-
-            BoardSquare* square = new BoardSquare();
-            currentPiece->setType(currentTile->getType());
-            currentPiece->setColumn(currentTile->getColumn());
-            currentPiece->setRow(currentTile->getRow());
-            square->setPiece(currentPiece);
-            square->setTile(currentTile);
-            squares[row][column] = square;
+            if (currentPiece == nullptr) currentPiece = new Piece(transparentImagePath, row, column, x, y);
+            pieces[row][column] = currentPiece;
         }
     }
 }
@@ -79,82 +64,93 @@ Board::Board(const char* path) {
 Board::~Board() {
     for (int i=0; i<8; i++) {
         for (int j=0; j<8; j++) {
-            if (squares[i][j]->getPiece() != nullptr) {
-                try {
-                    delete squares[i][j]->getPiece();
-                } catch (char*) {}
-            }
-            if (squares[i][j]->getTile() != nullptr) {
-                try{
-                    delete squares[i][j]->getTile();
-                } catch (char*) {}
-            }
+            delete pieces[i][j];
         }
     }
 }
 
-BoardSquare* Board::getHoverSquare(raylib::Vector2 vector) {
-    for (auto &row : squares) {
-        for (auto &cell : row) {
-            if (vector.x >= cell->getTile()->getX() && vector.x <= cell->getTile()->getX() + dx) {
-                if (vector.y >= cell->getTile()->getY() && vector.y <= cell->getTile()->getY() + dy) {
-                    return cell;
-                }
-            }
-        }
-    }
+raylib::Texture2D* Board::toTexture(const char* path, int width, int height) {
+    raylib::Image image(path);
+    raylib::Texture2D* texture;
 
-    return nullptr;
+    image.Resize(width, height);
+    texture->Load(image);
+    return texture;
 }
 
-BoardSquare* Board::getSquare(int row, int column) {
-    return squares[row][column];
+Piece* Board::getPiece(raylib::Vector2 vector) {
+    int row = vector.GetY() / dy;
+    int col = vector.GetX() / dx;
+
+    return pieces[row][col];
+}
+
+Piece* Board::getPiece(int row, int column) {
+    return pieces[row][column];
 }
 
 void Board::draw(int x, int y) {
     mousePos = mouse.GetPosition();
-    enpassant = NONE;
 
     texture.Draw(x, y);
-    for (auto &row : squares) {
+    for (auto &row : pieces) {
         for (auto &cell : row) {
-           if (!cell->getPiece()->isSelected()) cell->draw(-1, -1);
+           if (!cell->isSelected()) cell->draw(-1, -1);
         }
     }
 
+    if (pieceSelected) currentPiece->draw(mousePos);
+
     if (mouse.IsButtonPressed(MOUSE_LEFT_BUTTON) && !pieceSelected) {
-        currentSquare = getHoverSquare(mousePos);
-        if (currentSquare->getTile()->getType() != NONE) {
-            currentSquare->getPiece()->setSelected(true);
+        currentPiece = getPiece(mousePos);
+        if (currentPiece->getType() != NONE) {
+            currentPiece->setSelected(true);
             pieceSelected = true;
         }
     }
 
-    if (pieceSelected) {
-        currentSquare->draw(mousePos.GetX(), mousePos.GetY());
+    if (mouse.IsButtonReleased(MOUSE_BUTTON_LEFT) && pieceSelected) {
+        Piece* newPiece = getPiece(mousePos);
+        move(currentPiece, newPiece);
+
+        pieceSelected = false;
+        currentPiece = nullptr;
+    }
+}
+
+void Board::move(Piece* c, Piece* n) {
+    c->setSelected(false);
+    n->setSelected(false);
+
+    if (c->getType() == WPAWN || c->getType() == BPAWN) {
+        movePawn(c, n);
+    }
+}
+
+void Board::movePawn(Piece* c, Piece* n) {
+    int dr = n->getRow() - c->getRow();
+    int dc = n->getColumn() - c->getColumn();
+
+    if (c->hasMoved()) {
+        
+
+    } else {
+
     }
 
-    if (mouse.IsButtonReleased(MOUSE_BUTTON_LEFT) && pieceSelected) {
-        BoardSquare* newSquare = getHoverSquare(mousePos);
-        currentSquare->getPiece()->setSelected(false);
+    int nextRow;
+    if (c->getType() == WPAWN) {
+        nextRow = c->getRow() - 1;
+    }
+    if (c->getType() == BPAWN) {
+        nextRow = c->getRow() + 1;
+    }
+    std::cout << nextRow;
 
-        if (currentSquare->getPiece()->getType() == WPAWN || currentSquare->getPiece()->getType() == BPAWN) {
-            enpassant = getSquare(newSquare->getTile()->getRow()-1, newSquare->getTile()->getColumn())->getTile()->getType();
+    if (getPiece(nextRow, c->getColumn())->getType() == NONE && c->getColumn() == n->getColumn()) {
+        if ((dr == -1 && c->getType() == WPAWN) || (dr == 1 && c->getType() == BPAWN)) {
+            c->swap(n);
+            n->setMoved(true);
         }
-
-        if (currentSquare->getPiece()->move(newSquare->getPiece(), enpassant)) {
-            currentSquare->getPiece()->setColumn(newSquare->getPiece()->getColumn());
-            currentSquare->getPiece()->setRow(newSquare->getPiece()->getRow());
-            newSquare->setPiece(currentSquare->getPiece());
-
-            newSquare->getTile()->setType(currentSquare->getTile()->getType());
-            currentSquare->setPiece(new Piece());
-            currentSquare->getPiece()->setColumn(currentSquare->getTile()->getColumn());
-            currentSquare->getPiece()->setRow(currentSquare->getTile()->getRow());
-            currentSquare->getTile()->setType(NONE);
-        }
-        
-        pieceSelected = false;
-        currentSquare = nullptr;
     }
 }

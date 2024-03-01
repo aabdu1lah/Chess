@@ -1,5 +1,6 @@
 #pragma once
-#include "..\boardSquare\boardSquare.h"
+// #include "..\boardSquare\boardSquare.h"
+#include "..\pieces\piece.h"
 
 class Board {
     const char* whitePawnPath = "assets\\white_pawn.png";
@@ -16,6 +17,8 @@ class Board {
     const char* blackQueenPath = "assets\\black_queen.png";
     const char* blackBishopPath = "assets\\black_bishop.png";
 
+    const char* transparentImagePath = "assets\\transparent.png";
+
     const int dx = 75;
     const int dy = 75;
 
@@ -23,20 +26,22 @@ class Board {
     const int boardHeight = 600;
 
     raylib::Texture2D texture;
-    BoardSquare* squares[8][8];
+    Piece* pieces[8][8];
 
     raylib::Mouse mouse = raylib::Mouse();
     raylib::Vector2 mousePos;
 
     PieceType currentType;
-    PieceType enpassant = NONE;
-    BoardSquare* currentSquare;
+    Piece* currentPiece;
     bool pieceSelected = false;
 
 public:
     Board(const char* path);
     ~Board();
-    BoardSquare* getHoverSquare(raylib::Vector2 vector);
-    BoardSquare* getSquare(int row, int column);
+    Piece* getPiece(raylib::Vector2 vector);
+    Piece* getPiece(int row, int column);
     void draw(int x, int y);
+    raylib::Texture2D* toTexture(const char* path, int width, int height);
+    void move(Piece* c, Piece* n);
+    void movePawn(Piece* c, Piece* n);
 };

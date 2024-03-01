@@ -7,9 +7,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                ".\\boardSquare\\boardSquare.cpp",
                 ".\\pieces\\piece.cpp",
-                ".\\tile\\tile.cpp",
                 ".\\board\\board.cpp",
                 "${file}",
                 "-o",
