@@ -49,4 +49,6 @@ public:
     void movePawn(Piece* c, Piece* n);
     void moveRook(Piece* c, Piece* n);
     void moveBishop(Piece* c, Piece* n);
+    void moveKnight(Piece* c, Piece* n);
+    void moveKing(Piece* c, Piece* n);
 };

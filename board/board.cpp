@@ -125,6 +125,12 @@ void Board::move(Piece* c, Piece* n) {
     if (t == WBISHOP || t == BBISHOP || t == WQUEEN || t == BQUEEN) {
         moveBishop(c, n);
     }
+    if (t == WKNIGHT || t == BKNIGHT) {
+        moveKnight(c, n);
+    }
+    if (t == WKING || t == BKING) {
+        moveKing(c, n);
+    }
 }
 
 bool Board::emptySpacesInBetween(Piece* c, Piece* n) {
@@ -222,6 +228,10 @@ bool Board::emptySpacesInBetween(Piece* c, Piece* n) {
         }
     }
 
+    if (t == WKNIGHT || t == BKNIGHT) {
+        if (n->getType() != NONE) return false; 
+    }
+
     return true;
 }
 
@@ -271,4 +281,28 @@ void Board::moveBishop(Piece* c, Piece* n) {
     if (emptySpacesInBetween(c, n)) {
         c->swap(n);
     }
+}
+
+void Board::moveKnight(Piece* c, Piece* n) {
+    int dr = n->getRow() - c->getRow();
+    int dc = n->getColumn() - c->getColumn();
+
+    if (std::abs(dr) == 2 && std::abs(dc) == 1) {}
+    else if (std::abs(dr) == 1 && std::abs(dc) == 2) {}
+    else return;
+
+    if (emptySpacesInBetween(c, n)) {
+        c->swap(n);
+    }
+}
+
+void Board::moveKing(Piece* c, Piece* n) {
+    int dr = n->getRow() - c->getRow();
+    int dc = n->getColumn() - c->getColumn();
+
+    if (std::abs(dr) > 1 || std::abs(dc) > 1) return;
+
+    if (n->getType() == NONE) {
+        c->swap(n);
+    }    
 }
