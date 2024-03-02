@@ -114,14 +114,16 @@ void Board::move(Piece* c, Piece* n) {
     c->setSelected(false);
     n->setSelected(false);
 
-    if (c->getType() == WPAWN || c->getType() == BPAWN) {
+    PieceType t = c->getType();
+
+    if (t == WPAWN || t == BPAWN) {
         movePawn(c, n);
-    } else if (c->getType() == WROOK || c->getType() == BROOK) {
+    } else if (t == WROOK || t == BROOK || t == WQUEEN || t == BQUEEN) {
         moveRook(c, n);
     }
 }
 
-bool Board::emptySpacesInBetween(PieceType t, Piece* c, Piece* n) {
+bool Board::emptySpacesInBetween(Piece* c, Piece* n) {
     int cr = c->getRow();
     int cc = c->getColumn();
     int nr = n->getRow();
@@ -129,6 +131,8 @@ bool Board::emptySpacesInBetween(PieceType t, Piece* c, Piece* n) {
 
     int dr = nr - cr;
     int dc = nc - cc;
+
+    PieceType t = c->getType();
 
     if (t == WPAWN) {
         cr = std::max(c->getRow(), n->getRow());
@@ -152,7 +156,7 @@ bool Board::emptySpacesInBetween(PieceType t, Piece* c, Piece* n) {
         }
     }
 
-    if (t == WROOK || t == BROOK) {
+    if (t == WROOK || t == BROOK || t == WQUEEN || t == BQUEEN) {
         if (dc == 0) {
             if (dr < 0) {
                 for (int i=cr-1; i>=nr; i--) {
@@ -193,19 +197,19 @@ void Board::movePawn(Piece* c, Piece* n) {
 
     if (!c->hasMoved()) {
         if (dr == -2 && c->getType() == WPAWN) {
-            if (emptySpacesInBetween(WPAWN, c, n) && c->getColumn() == n->getColumn()) {
+            if (emptySpacesInBetween(c, n) && c->getColumn() == n->getColumn()) {
                 c->swap(n);
                 n->setMoved(true);
             }            
         } else if (dr == 2 && c->getType() == BPAWN) {
-            if (emptySpacesInBetween(BPAWN, c, n) && c->getColumn() == n->getColumn()) {
+            if (emptySpacesInBetween(c, n) && c->getColumn() == n->getColumn()) {
                 c->swap(n);
                 n->setMoved(true);
             }
         }
     }
 
-    if (emptySpacesInBetween(c->getType(), c, n) && c->getColumn() == n->getColumn()) {
+    if (emptySpacesInBetween(c, n) && c->getColumn() == n->getColumn()) {
         if ((dr == -1 && c->getType() == WPAWN) || (dr == 1 && c->getType() == BPAWN)) {
             c->swap(n);
             n->setMoved(true);
@@ -219,7 +223,7 @@ void Board::moveRook(Piece* c, Piece* n) {
 
     if (dr != 0 && dc != 0) return;
 
-    if (emptySpacesInBetween(c->getType(), c, n)) {
+    if (emptySpacesInBetween(c, n)) {
         c->swap(n);
     }
 }

@@ -41,7 +41,7 @@ public:
 
     Piece* getPiece(raylib::Vector2 vector);
     Piece* getPiece(int row, int column);
-    bool emptySpacesInBetween(PieceType t, Piece* c, Piece* n);
+    bool emptySpacesInBetween(Piece* c, Piece* n);
 
     void draw(int x, int y);
     
