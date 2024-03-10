@@ -94,19 +94,27 @@ void Board::draw(int x, int y) {
     if (pieceSelected) currentPiece->draw(mousePos);
 
     if (mouse.IsButtonPressed(MOUSE_LEFT_BUTTON) && !pieceSelected) {
-        currentPiece = getPiece(mousePos);
-        if (currentPiece->getType() != NONE) {
-            currentPiece->setSelected(true);
-            pieceSelected = true;
+        if (mousePos.x <= 600 && mousePos.y <= 600) {
+            currentPiece = getPiece(mousePos);
+            if ((currentPiece->getParent() == W && turn == player_1) || (currentPiece->getParent() == B && turn == player_2)) {
+                currentPiece->setSelected(true);
+                pieceSelected = true;
+            }
         }
     }
 
     if (mouse.IsButtonReleased(MOUSE_BUTTON_LEFT) && pieceSelected) {
-        Piece* newPiece = getPiece(mousePos);
-        move(currentPiece, newPiece);
-
-        pieceSelected = false;
-        currentPiece = nullptr;
+        if (mousePos.x <= 600 && mousePos.y <= 600) {
+            Piece* newPiece = getPiece(mousePos);
+            if (currentPiece != newPiece) {
+                move(currentPiece, newPiece);
+                turn = turn == player_1 ? 2 : 1; 
+            } else {
+                currentPiece->setSelected(false);
+            }
+            pieceSelected = false;
+            currentPiece = nullptr;
+        }
     }
 }
 
@@ -116,13 +124,15 @@ void Board::move(Piece* c, Piece* n) {
 
     PieceType t = c->getType();
 
+    if (c == n) return;
+
     if (t == WPAWN || t == BPAWN) {
         movePawn(c, n);
     } 
-    if (t == WROOK || t == BROOK || t == WQUEEN || t == BQUEEN) {
+    if (t == WROOK || t == BROOK) {
         moveRook(c, n);
     } 
-    if (t == WBISHOP || t == BBISHOP || t == WQUEEN || t == BQUEEN) {
+    if (t == WBISHOP || t == BBISHOP) {
         moveBishop(c, n);
     }
     if (t == WKNIGHT || t == BKNIGHT) {
@@ -131,89 +141,9 @@ void Board::move(Piece* c, Piece* n) {
     if (t == WKING || t == BKING) {
         moveKing(c, n);
     }
-}
-
-bool Board::emptySpacesInBetween(Piece* c, Piece* n) {
-    int cr = c->getRow();
-    int cc = c->getColumn();
-    int nr = n->getRow();
-    int nc = n->getColumn();
-
-    int dr = nr - cr;
-    int dc = nc - cc;
-
-    PieceType t = c->getType();
-
-    if (t == WBISHOP || t == BBISHOP || t == WQUEEN || t == BQUEEN) {
-        if (std::abs(dr) == std::abs(dc)) {
-            if (dc > 0 && dr > 0) {
-                for (int i=cr+1, j=cc+1; i<nr && j<nc; i++, j++) {
-                    if (pieces[i][j]->getType() != NONE) {
-                        return false;
-                    }
-                }
-            } else if (dc < 0 && dr < 0) {
-                for (int i=cr-1, j=cc-1; i>nr && j>nc; i--, j--) {
-                    if (pieces[i][j]->getType() != NONE) {
-                        return false;
-                    }
-                }
-            } else if (dc > 0 && dr < 0) {
-                for (int i=cr-1, j=cc+1; i>nr && j<nc; i--, j++) {
-                    if (pieces[i][j]->getType() != NONE) {
-                        return false;
-                    }
-                }
-            } else if (dc < 0 && dr > 0) {
-                for (int i=cr+1, j=cc-1; i<nr && j>nc; i++, j--) {
-                    if (pieces[i][j]->getType() != NONE) {
-                        return false;
-                    }
-                }
-            }
-        }
+    if (t == WQUEEN || t == BQUEEN) {
+        moveQueen(c, n);
     }
-
-    if (t == WROOK || t == BROOK || t == WQUEEN || t == BQUEEN) {
-        if (dc == 0) {
-            if (dr < 0) {
-                for (int i=cr-1; i>nr; i--) {
-                    if (pieces[i][cc]->getType() != NONE) {
-                        return false;
-                    }
-                }
-            } else {
-                for (int i=cr+1; i<nr; i++) {
-                    if (pieces[i][cc]->getType() != NONE) {
-                        return false;
-                    }
-                }
-            }
-        } else if (dr == 0) {
-            if (dc < 0) {
-                for (int i=cc-1; i>nc; i--) {
-                    if (pieces[cr][i]->getType() != NONE) {
-                        return false;
-                    }
-                }
-            } else {
-                for (int i=cc+1; i<nc; i++) {
-                    if (pieces[cr][i]->getType() != NONE) {
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-
-    if (t == WKNIGHT && n->getParent() == W) {
-        return false;
-    }
-    if (t == BKNIGHT && n->getParent() == B) {
-        return false;
-    }
-
-    return true;
 }
 
 void Board::movePawn(Piece* c, Piece* n) {
@@ -243,21 +173,24 @@ void Board::movePawn(Piece* c, Piece* n) {
             if (std::abs(dc) == 1 && !moved) {
                 Piece* enpassantPiece = getPiece(c->getRow() - 1, c->getColumn() + dc);
                 if (enpassantPiece->getParent() == B) {
+                    c->setMoved(true);
                     c->swap(n);
-                    n->setMoved(true);
 
                     enpassantPiece->getTexture()->Unload();
                     enpassantPiece->setType(NONE);
                     enpassantPiece->setMoved(false);
                     enpassantPiece->setSelected(false);
                 }
-            } else if (dc == 0) {
+            } else if (dc == 0 and !moved) {
+                c->setMoved(true);
                 c->swap(n);
-                n->setMoved(true);
             }
         } else if (dr == -1 && dc == 0 && empty) {
+            c->setMoved(true);
             c->swap(n);
-            n->setMoved(true);
+        } else if (std::abs(dc) == 1 && dr == -1 && n->getParent() == B) {
+            c->setMoved(true);
+            c->capture(n);
         }
     }
     
@@ -275,44 +208,127 @@ void Board::movePawn(Piece* c, Piece* n) {
             if (std::abs(dc) == 1 && !moved) {
                 Piece* enpassantPiece = getPiece(c->getRow() + 1, c->getColumn() + dc);
                 if (enpassantPiece->getParent() == W) {
+                    c->setMoved(true);
                     c->swap(n);
-                    n->setMoved(true);
 
                     enpassantPiece->getTexture()->Unload();
                     enpassantPiece->setType(NONE);
                     enpassantPiece->setMoved(false);
                     enpassantPiece->setSelected(false);
                 }
-            } else if (dc == 0) {
+            } else if (dc == 0 & !moved) {
+                c->setMoved(true);
                 c->swap(n);
-                n->setMoved(true);
             }
         } else if (dr == 1 && dc == 0 && empty) {
+            c->setMoved(true);
             c->swap(n);
-            n->setMoved(true);
+        } else if (std::abs(dc) == 1 && dr == 1 && n->getParent() == W) {
+            c->setMoved(true);
+            c->capture(n);
         }
     }
 }
 
 void Board::moveRook(Piece* c, Piece* n) {
-    int dr = n->getRow() - c->getRow();
-    int dc = n->getColumn() - c->getColumn();
+    int cr = c->getRow();
+    int cc = c->getColumn();
+    int nr = n->getRow();
+    int nc = n->getColumn();
+
+    int dr = nr - cr;
+    int dc = nc - cc;
+    
+    PieceType t = c->getType();
+    bool empty = true;
 
     if (dr != 0 && dc != 0) return;
 
-    if (emptySpacesInBetween(c, n)) {
-        c->swap(n);
+    if (dc == 0) {
+        if (dr < 0) {
+            for (int i=cr-1; i>nr; i--) {
+                if (pieces[i][cc]->getType() != NONE) {
+                    empty = false;
+                }
+            }
+        } else {
+            for (int i=cr+1; i<nr; i++) {
+                if (pieces[i][cc]->getType() != NONE) {
+                    empty = false;
+                }
+            }
+        }
+    } else if (dr == 0) {
+        if (dc < 0) {
+            for (int i=cc-1; i>nc; i--) {
+                if (pieces[cr][i]->getType() != NONE) {
+                    empty = false;
+                }
+            }
+        } else {
+            for (int i=cc+1; i<nc; i++) {
+                if (pieces[cr][i]->getType() != NONE) {
+                    empty = false;
+                }
+            }
+        }
+    }
+
+    if (empty) {
+        if ((n->getParent() == W && t == BROOK) || n->getParent() == B && t == WROOK) {
+            c->capture(n);
+        } else if (n->getType() == NONE) {
+            c->swap(n);
+        }
     }
 }
 
 void Board::moveBishop(Piece* c, Piece* n) {
-    int dr = n->getRow() - c->getRow();
-    int dc = n->getColumn() - c->getColumn();
+    int cr = c->getRow();
+    int cc = c->getColumn();
+    int nr = n->getRow();
+    int nc = n->getColumn();
+
+    int dr = nr - cr;
+    int dc = nc - cc;
+    
+    PieceType t = c->getType();
+    bool empty = true;
 
     if (std::abs(dr) != std::abs(dc)) return;
 
-    if (emptySpacesInBetween(c, n)) {
-        c->swap(n);
+    if (dc > 0 && dr > 0) {
+        for (int i=cr+1, j=cc+1; i<nr && j<nc; i++, j++) {
+            if (pieces[i][j]->getType() != NONE) {
+                empty = false;
+            }
+        }
+    } else if (dc < 0 && dr < 0) {
+        for (int i=cr-1, j=cc-1; i>nr && j>nc; i--, j--) {
+            if (pieces[i][j]->getType() != NONE) {
+                empty =  false;
+            }
+        }
+    } else if (dc > 0 && dr < 0) {
+        for (int i=cr-1, j=cc+1; i>nr && j<nc; i--, j++) {
+            if (pieces[i][j]->getType() != NONE) {
+                empty =  false;
+            }
+        }
+    } else if (dc < 0 && dr > 0) {
+        for (int i=cr+1, j=cc-1; i<nr && j>nc; i++, j--) {
+            if (pieces[i][j]->getType() != NONE) {
+                empty =  false;
+            }
+        }
+    }
+
+    if (empty) {
+        if ((n->getParent() == W && t == BBISHOP) || n->getParent() == B && t == WBISHOP) {
+            c->capture(n);
+        } else if (n->getType() == NONE) {
+            c->swap(n);
+        }
     }
 }
 
@@ -320,12 +336,91 @@ void Board::moveKnight(Piece* c, Piece* n) {
     int dr = n->getRow() - c->getRow();
     int dc = n->getColumn() - c->getColumn();
 
+    PieceType t = c->getType();
+
     if (std::abs(dr) == 2 && std::abs(dc) == 1) {}
     else if (std::abs(dr) == 1 && std::abs(dc) == 2) {}
     else return;
 
-    if (emptySpacesInBetween(c, n)) {
+    if ((t == WKNIGHT && n->getParent() == B) || (t == BKNIGHT && n->getParent() == W)) {
+        c->capture(n);
+    } else if (n->getType() == NONE) {
         c->swap(n);
+    }
+}
+
+void Board::moveQueen(Piece* c, Piece* n) {
+    int cr = c->getRow();
+    int cc = c->getColumn();
+    int nr = n->getRow();
+    int nc = n->getColumn();
+
+    int dr = nr - cr;
+    int dc = nc - cc;
+    
+    PieceType t = c->getType();
+    bool empty = true;
+
+    if (dc == 0) {
+        if (dr < 0) {
+            for (int i=cr-1; i>nr; i--) {
+                if (pieces[i][cc]->getType() != NONE) {
+                    empty = false;
+                }
+            }
+        } else {
+            for (int i=cr+1; i<nr; i++) {
+                if (pieces[i][cc]->getType() != NONE) {
+                    empty = false;
+                }
+            }
+        }
+    } else if (dr == 0) {
+        if (dc < 0) {
+            for (int i=cc-1; i>nc; i--) {
+                if (pieces[cr][i]->getType() != NONE) {
+                    empty = false;
+                }
+            }
+        } else {
+            for (int i=cc+1; i<nc; i++) {
+                if (pieces[cr][i]->getType() != NONE) {
+                    empty = false;
+                }
+            }
+        }
+    } else if (dc > 0 && dr > 0) {
+        for (int i=cr+1, j=cc+1; i<nr && j<nc; i++, j++) {
+            if (pieces[i][j]->getType() != NONE) {
+                empty = false;
+            }
+        }
+    } else if (dc < 0 && dr < 0) {
+        for (int i=cr-1, j=cc-1; i>nr && j>nc; i--, j--) {
+            if (pieces[i][j]->getType() != NONE) {
+                empty = false;
+            }
+        }
+    } else if (dc > 0 && dr < 0) {
+        for (int i=cr-1, j=cc+1; i>nr && j<nc; i--, j++) {
+            if (pieces[i][j]->getType() != NONE) {
+                empty = false;
+            }
+        }
+    } else if (dc < 0 && dr > 0) {
+        for (int i=cr+1, j=cc-1; i<nr && j>nc; i++, j--) {
+            if (pieces[i][j]->getType() != NONE) {
+                empty = false;
+            }
+        }
+    }
+
+    if (empty) {
+        if ((n->getParent() == W && t == BQUEEN) || n->getParent() == B && t == WQUEEN) {
+            c->capture(n);
+        } else if (n->getType() == NONE) {
+            c->swap(n);
+        }
     }
 }
 
@@ -333,9 +428,13 @@ void Board::moveKing(Piece* c, Piece* n) {
     int dr = n->getRow() - c->getRow();
     int dc = n->getColumn() - c->getColumn();
 
+    PieceType t = c->getType();
+    
     if (std::abs(dr) > 1 || std::abs(dc) > 1) return;
-
-    if (n->getType() == NONE) {
+    
+    if ((t == WKING && n->getParent() == B) || (t == BKING && n->getParent() == W)) {
+        c->capture(n);
+    } else if (n->getType() == NONE) {
         c->swap(n);
-    }    
+    }
 }

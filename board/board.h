@@ -25,6 +25,10 @@ class Board {
     const int boardWidth = 600;
     const int boardHeight = 600;
 
+    const int player_1 = 1;
+    const int player_2 = 2;
+    int turn = 1;
+
     raylib::Texture2D texture;
     Piece* pieces[8][8];
 
@@ -41,7 +45,6 @@ public:
 
     Piece* getPiece(raylib::Vector2 vector);
     Piece* getPiece(int row, int column);
-    bool emptySpacesInBetween(Piece* c, Piece* n);
 
     void draw(int x, int y);
     
@@ -50,5 +53,6 @@ public:
     void moveRook(Piece* c, Piece* n);
     void moveBishop(Piece* c, Piece* n);
     void moveKnight(Piece* c, Piece* n);
+    void moveQueen(Piece* c, Piece* n);
     void moveKing(Piece* c, Piece* n);
 };

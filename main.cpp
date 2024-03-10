@@ -5,7 +5,7 @@
 
 int main() {
     int screenWidth = 600;
-    int screenHeight = 600;
+    int screenHeight = 700;
 
     const char* boardPath = "assets\\chess.png";
 

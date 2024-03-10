@@ -52,6 +52,8 @@ void Piece::setType(PieceType t) {
         setParent(W);
     } else if (type >= 8 && type <= 13) {
         setParent(B);
+    } else {
+        setParent(NONE);
     }
 }
 
