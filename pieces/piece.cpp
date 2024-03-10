@@ -12,6 +12,13 @@ Piece::Piece(const char* path, int r, int c, int a, int b) {
     y = b;
 }
 
+Piece::Piece(int r, int c, int a, int b) {
+    row = r;
+    column = c;
+    x = a;
+    y = b;
+}
+
 void Piece::draw(int a, int b) {
     if (a == -1) a = x;
     if (b == -1) b = y;
@@ -40,6 +47,12 @@ void Piece::setY(int a) {
 
 void Piece::setType(PieceType t) {
     type = t;
+
+    if (type >=2 && type <= 7) {
+        setParent(W);
+    } else if (type >= 8 && type <= 13) {
+        setParent(B);
+    }
 }
 
 void Piece::setSelected(bool b) {
@@ -50,6 +63,9 @@ void Piece::setMoved(bool m) {
     moved = m;
 }
 
+void Piece::setParent(PieceType t) {
+    parent = t;
+}
 
 int Piece::getRow() {
     return row;
@@ -69,6 +85,10 @@ int Piece::getY() {
 
 PieceType Piece::getType() {
     return type;
+}
+
+PieceType Piece::getParent() {
+    return parent;
 }
 
 bool Piece::isSelected() {
@@ -96,17 +116,25 @@ void Piece::swap(Piece* p) {
     p->setType(getType());
     setType(temptype);
     
-    raylib::Image i;
-    raylib::Image i2;
+    if (p->getTexture()->IsReady()) {
+        raylib::Image i;
+        raylib::Image i2;
 
-    i.Load(*p->getTexture());
-    i2.Load(*getTexture());
+        i.Load(*p->getTexture());
+        i2.Load(*getTexture());
 
-    p->getTexture()->Unload();
-    getTexture()->Unload();
+        p->getTexture()->Unload();
+        getTexture()->Unload();
 
-    getTexture()->Load(i);
-    p->getTexture()->Load(i2);
+        getTexture()->Load(i);
+        p->getTexture()->Load(i2);
+    } else {
+        raylib::Image i;
+        i.Load(*getTexture());
+        getTexture()->Unload();
+        p->getTexture()->Load(i);
+    }
+    
 
     bool t = p->hasMoved();
     p->setMoved(hasMoved());

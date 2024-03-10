@@ -8,6 +8,7 @@ class Piece {
 
     raylib::Texture2D texture;
     PieceType type = NONE;
+    PieceType parent = NONE;
     bool selected = false;
     bool moved = false;
 
@@ -15,11 +16,13 @@ class Piece {
     int column;
     int x;
     int y;
+    void setParent(PieceType t);
 
 public:
     Piece();
     Piece(const char* path, int r, int c, int a, int b);
-    
+    Piece(int r, int c, int a, int b);
+
     void draw(int a, int b);
     void draw(raylib::Vector2 v);
     void swap(Piece* p);
@@ -33,6 +36,7 @@ public:
     void setY(int a);
 
     PieceType getType();
+    PieceType getParent();
     raylib::Texture2D* getTexture();
     bool isSelected();
     bool hasMoved();

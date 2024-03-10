@@ -2,6 +2,8 @@
 #include <iostream>
 
 enum PieceType {
+    B,
+    W,
     WKING,
     WQUEEN,
     WKNIGHT,

@@ -56,7 +56,7 @@ Board::Board(const char* path) {
                     currentPiece->setType(BKING);
                 }
             }
-            if (currentPiece == nullptr) currentPiece = new Piece(transparentImagePath, row, column, x, y);
+            if (currentPiece == nullptr) currentPiece = new Piece(row, column, x, y);
             pieces[row][column] = currentPiece;
         }
     }
@@ -241,14 +241,28 @@ void Board::movePawn(Piece* c, Piece* n) {
 
     if (!c->hasMoved()) {
         if (dr == -2 && c->getType() == WPAWN) {
+            if (dc == 1 || dc == -1) {
+                if (!getPiece(c->getRow() - 1, c->getColumn() + dc)->getParent() == B) {
+                    return;
+                }
+            }
             if (emptySpacesInBetween(c, n) && c->getColumn() == n->getColumn()) {
                 c->swap(n);
                 n->setMoved(true);
             }            
         } else if (dr == 2 && c->getType() == BPAWN) {
-            if (emptySpacesInBetween(c, n) && c->getColumn() == n->getColumn()) {
-                c->swap(n);
-                n->setMoved(true);
+            if (dc == 1 || dc == -1) {
+                if (getPiece(c->getRow() + 1, c->getColumn() + dc)->getParent() == W) {
+                    if (emptySpacesInBetween(c, n)) {
+                        c->swap(n);
+                        n->setMoved(true);
+                    }
+                }
+            } else {
+                if (emptySpacesInBetween(c, n) && c->getColumn() == n->getColumn()) {
+                    c->swap(n);
+                    n->setMoved(true);
+                }
             }
         }
     }
