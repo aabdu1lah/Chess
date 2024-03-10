@@ -26,6 +26,7 @@ public:
     void draw(int a, int b);
     void draw(raylib::Vector2 v);
     void swap(Piece* p);
+    void capture(Piece* p);
 
     void setRow(int r);
     void setColumn(int c);

@@ -144,50 +144,28 @@ bool Board::emptySpacesInBetween(Piece* c, Piece* n) {
 
     PieceType t = c->getType();
 
-    if (t == WPAWN) {
-        cr = std::max(c->getRow(), n->getRow());
-        nr = std::min(c->getRow(), n->getRow());
-
-        for (int i=cr-1; i>=nr; i--) {
-            if (pieces[i][cc]->getType() != NONE) {
-                return false;
-            }
-        }
-    }
-    
-    if (t == BPAWN) {
-        nr = std::max(c->getRow(), n->getRow());
-        cr = std::min(c->getRow(), n->getRow());
-
-        for (int i=cr+1; i<=nr; i++) {
-            if (pieces[i][cc]->getType() != NONE) {
-                return false;
-            }
-        }
-    }
-
     if (t == WBISHOP || t == BBISHOP || t == WQUEEN || t == BQUEEN) {
         if (std::abs(dr) == std::abs(dc)) {
             if (dc > 0 && dr > 0) {
-                for (int i=cr+1, j=cc+1; i<=nr && j<=nc; i++, j++) {
+                for (int i=cr+1, j=cc+1; i<nr && j<nc; i++, j++) {
                     if (pieces[i][j]->getType() != NONE) {
                         return false;
                     }
                 }
             } else if (dc < 0 && dr < 0) {
-                for (int i=cr-1, j=cc-1; i>=nr && j>=nc; i--, j--) {
+                for (int i=cr-1, j=cc-1; i>nr && j>nc; i--, j--) {
                     if (pieces[i][j]->getType() != NONE) {
                         return false;
                     }
                 }
             } else if (dc > 0 && dr < 0) {
-                for (int i=cr-1, j=cc+1; i>=nr && j<=nc; i--, j++) {
+                for (int i=cr-1, j=cc+1; i>nr && j<nc; i--, j++) {
                     if (pieces[i][j]->getType() != NONE) {
                         return false;
                     }
                 }
             } else if (dc < 0 && dr > 0) {
-                for (int i=cr+1, j=cc-1; i<=nr && j>=nc; i++, j--) {
+                for (int i=cr+1, j=cc-1; i<nr && j>nc; i++, j--) {
                     if (pieces[i][j]->getType() != NONE) {
                         return false;
                     }
@@ -199,13 +177,13 @@ bool Board::emptySpacesInBetween(Piece* c, Piece* n) {
     if (t == WROOK || t == BROOK || t == WQUEEN || t == BQUEEN) {
         if (dc == 0) {
             if (dr < 0) {
-                for (int i=cr-1; i>=nr; i--) {
+                for (int i=cr-1; i>nr; i--) {
                     if (pieces[i][cc]->getType() != NONE) {
                         return false;
                     }
                 }
             } else {
-                for (int i=cr+1; i<=nr; i++) {
+                for (int i=cr+1; i<nr; i++) {
                     if (pieces[i][cc]->getType() != NONE) {
                         return false;
                     }
@@ -213,13 +191,13 @@ bool Board::emptySpacesInBetween(Piece* c, Piece* n) {
             }
         } else if (dr == 0) {
             if (dc < 0) {
-                for (int i=cc-1; i>=nc; i--) {
+                for (int i=cc-1; i>nc; i--) {
                     if (pieces[cr][i]->getType() != NONE) {
                         return false;
                     }
                 }
             } else {
-                for (int i=cc+1; i<=nc; i++) {
+                for (int i=cc+1; i<nc; i++) {
                     if (pieces[cr][i]->getType() != NONE) {
                         return false;
                     }
@@ -228,47 +206,88 @@ bool Board::emptySpacesInBetween(Piece* c, Piece* n) {
         }
     }
 
-    if (t == WKNIGHT || t == BKNIGHT) {
-        if (n->getType() != NONE) return false; 
+    if (t == WKNIGHT && n->getParent() == W) {
+        return false;
+    }
+    if (t == BKNIGHT && n->getParent() == B) {
+        return false;
     }
 
     return true;
 }
 
 void Board::movePawn(Piece* c, Piece* n) {
-    int dr = n->getRow() - c->getRow();
-    int dc = n->getColumn() - c->getColumn();
+    int cr = c->getRow();
+    int cc = c->getColumn();
+    int nr = n->getRow();
+    int nc = n->getColumn();
 
-    if (!c->hasMoved()) {
-        if (dr == -2 && c->getType() == WPAWN) {
-            if (dc == 1 || dc == -1) {
-                if (!getPiece(c->getRow() - 1, c->getColumn() + dc)->getParent() == B) {
-                    return;
-                }
-            }
-            if (emptySpacesInBetween(c, n) && c->getColumn() == n->getColumn()) {
-                c->swap(n);
-                n->setMoved(true);
-            }            
-        } else if (dr == 2 && c->getType() == BPAWN) {
-            if (dc == 1 || dc == -1) {
-                if (getPiece(c->getRow() + 1, c->getColumn() + dc)->getParent() == W) {
-                    if (emptySpacesInBetween(c, n)) {
-                        c->swap(n);
-                        n->setMoved(true);
-                    }
-                }
-            } else {
-                if (emptySpacesInBetween(c, n) && c->getColumn() == n->getColumn()) {
-                    c->swap(n);
-                    n->setMoved(true);
-                }
+    int dr = nr - cr;
+    int dc = nc - cc;
+    
+    PieceType t = c->getType();
+    bool empty = true;
+    bool moved = c->hasMoved();
+
+    if (t == WPAWN) {
+        cr = std::max(c->getRow(), n->getRow());
+        nr = std::min(c->getRow(), n->getRow());
+
+        for (int i=cr-1; i>=nr; i--) {
+            if (pieces[i][cc]->getType() != NONE) {
+                empty = false;
             }
         }
-    }
 
-    if (emptySpacesInBetween(c, n) && c->getColumn() == n->getColumn()) {
-        if ((dr == -1 && c->getType() == WPAWN) || (dr == 1 && c->getType() == BPAWN)) {
+        if (dr == -2 and empty) {
+            if (std::abs(dc) == 1 && !moved) {
+                Piece* enpassantPiece = getPiece(c->getRow() - 1, c->getColumn() + dc);
+                if (enpassantPiece->getParent() == B) {
+                    c->swap(n);
+                    n->setMoved(true);
+
+                    enpassantPiece->getTexture()->Unload();
+                    enpassantPiece->setType(NONE);
+                    enpassantPiece->setMoved(false);
+                    enpassantPiece->setSelected(false);
+                }
+            } else if (dc == 0) {
+                c->swap(n);
+                n->setMoved(true);
+            }
+        } else if (dr == -1 && dc == 0 && empty) {
+            c->swap(n);
+            n->setMoved(true);
+        }
+    }
+    
+    if (t == BPAWN) {
+        nr = std::max(c->getRow(), n->getRow());
+        cr = std::min(c->getRow(), n->getRow());
+
+        for (int i=cr+1; i<=nr; i++) {
+            if (pieces[i][cc]->getType() != NONE) {
+                empty = false;
+            }
+        }
+
+        if (dr == 2 and empty) {
+            if (std::abs(dc) == 1 && !moved) {
+                Piece* enpassantPiece = getPiece(c->getRow() + 1, c->getColumn() + dc);
+                if (enpassantPiece->getParent() == W) {
+                    c->swap(n);
+                    n->setMoved(true);
+
+                    enpassantPiece->getTexture()->Unload();
+                    enpassantPiece->setType(NONE);
+                    enpassantPiece->setMoved(false);
+                    enpassantPiece->setSelected(false);
+                }
+            } else if (dc == 0) {
+                c->swap(n);
+                n->setMoved(true);
+            }
+        } else if (dr == 1 && dc == 0 && empty) {
             c->swap(n);
             n->setMoved(true);
         }

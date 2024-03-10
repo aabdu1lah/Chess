@@ -116,27 +116,26 @@ void Piece::swap(Piece* p) {
     p->setType(getType());
     setType(temptype);
     
-    if (p->getTexture()->IsReady()) {
-        raylib::Image i;
-        raylib::Image i2;
-
-        i.Load(*p->getTexture());
-        i2.Load(*getTexture());
-
-        p->getTexture()->Unload();
-        getTexture()->Unload();
-
-        getTexture()->Load(i);
-        p->getTexture()->Load(i2);
-    } else {
-        raylib::Image i;
-        i.Load(*getTexture());
-        getTexture()->Unload();
-        p->getTexture()->Load(i);
-    }
-    
+    raylib::Image i;
+    i.Load(*getTexture());
+    getTexture()->Unload();
+    p->getTexture()->Load(i);
 
     bool t = p->hasMoved();
     p->setMoved(hasMoved());
     setMoved(t);
+}
+
+void Piece::capture(Piece* p) {
+    p->setType(getType());
+    setType(NONE);
+
+    raylib::Image i;
+    i.Load(*getTexture());
+    getTexture()->Unload();
+    p->getTexture()->Unload();
+    p->getTexture()->Load(i);
+
+    p->setMoved(hasMoved());
+    setMoved(false);
 }
