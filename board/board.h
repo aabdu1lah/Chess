@@ -1,5 +1,4 @@
 #pragma once
-// #include "..\boardSquare\boardSquare.h"
 #include "..\pieces\piece.h"
 
 class Board {
@@ -32,6 +31,13 @@ class Board {
     raylib::Texture2D texture;
     Piece* pieces[8][8];
 
+    Piece* whiteKing;
+    Piece* blackKing;
+
+    Piece* lastState[2] = {nullptr, nullptr};
+    Piece* currentState[2] = {nullptr, nullptr};
+    bool captured = false;
+
     raylib::Mouse mouse = raylib::Mouse();
     raylib::Vector2 mousePos;
 
@@ -47,12 +53,19 @@ public:
     Piece* getPiece(int row, int column);
 
     void draw(int x, int y);
+    void undo();
     
-    void move(Piece* c, Piece* n);
-    void movePawn(Piece* c, Piece* n);
-    void moveRook(Piece* c, Piece* n);
-    void moveBishop(Piece* c, Piece* n);
-    void moveKnight(Piece* c, Piece* n);
-    void moveQueen(Piece* c, Piece* n);
-    void moveKing(Piece* c, Piece* n);
+    bool underCheck(int player);
+    bool isStalemate(int player);
+    bool isCheckmate(int player);
+
+    bool move(Piece* c, Piece* n, bool check = false);
+    bool movePawn(Piece* c, Piece* n, bool check);
+    bool moveRook(Piece* c, Piece* n, bool check);
+    bool moveBishop(Piece* c, Piece* n, bool check);
+    bool moveKnight(Piece* c, Piece* n, bool check);
+    bool moveQueen(Piece* c, Piece* n, bool check);
+    bool moveKing(Piece* c, Piece* n, bool check);
+
+    int getTurn();
 };

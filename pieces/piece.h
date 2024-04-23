@@ -22,6 +22,7 @@ public:
     Piece();
     Piece(const char* path, int r, int c, int a, int b);
     Piece(int r, int c, int a, int b);
+    Piece(Piece &p);
 
     void draw(int a, int b);
     void draw(raylib::Vector2 v);
@@ -47,4 +48,6 @@ public:
     int getY();
     int getWidth();
     int getHeight();
+
+    Piece& operator=(const Piece& other);
 };

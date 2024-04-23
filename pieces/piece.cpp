@@ -19,6 +19,24 @@ Piece::Piece(int r, int c, int a, int b) {
     y = b;
 }
 
+Piece::Piece(Piece &p) {
+    if (p.getTexture()->IsReady()) {
+        raylib::Image i;
+        i.Load(*p.getTexture());
+        this->texture.Load(i);
+    }
+
+    this->type = p.type;
+    this->parent = p.parent;
+    this->selected = p.selected;
+    this->moved = p.moved;
+
+    this->row = p.row;
+    this->column = p.column;
+    this->x = p.x;
+    this->y = p.y;
+}
+
 void Piece::draw(int a, int b) {
     if (a == -1) a = x;
     if (b == -1) b = y;
@@ -140,4 +158,24 @@ void Piece::capture(Piece* p) {
 
     p->setMoved(hasMoved());
     setMoved(false);
+}
+
+Piece& Piece::operator=(const Piece& other) {
+    if (this != &other) { 
+        if (other.texture.IsReady()) {
+            raylib::Image i;
+            i.Load(other.texture);
+            texture.Unload();
+            texture.Load(i);
+        }
+        type = other.type;
+        parent = other.parent;
+        selected = other.selected;
+        moved = other.moved;
+        row = other.row;
+        column = other.column;
+        x = other.x;
+        y = other.y;
+    }
+    return *this;
 }
