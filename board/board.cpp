@@ -37,7 +37,6 @@ Board::Board(const char* path) {
                 } else if (column == 4) {
                     currentPiece = new Piece(whiteKingPath, row, column, x, y);
                     currentPiece->setType(WKING);
-                    whiteKing = currentPiece;
                 }
             } else if (row == 0) {
                 if (column == 0 || column == 7) {
@@ -55,7 +54,6 @@ Board::Board(const char* path) {
                 } else if (column == 4) {
                     currentPiece = new Piece(blackKingPath, row, column, x, y);
                     currentPiece->setType(BKING);
-                    blackKing = currentPiece;
                 }
             }
             if (currentPiece == nullptr) currentPiece = new Piece(row, column, x, y);
@@ -102,9 +100,6 @@ void Board::draw(int x, int y) {
 
     if (pieceSelected) currentPiece->draw(mousePos);
 
-    if (isStalemate(turn)) return;
-    if (isCheckmate(turn)) return;
-
     if (mouse.IsButtonPressed(MOUSE_LEFT_BUTTON) && !pieceSelected) {
         if (mousePos.x <= boardWidth && mousePos.y <= boardHeight) {
             currentPiece = getPiece(mousePos);
@@ -121,16 +116,24 @@ void Board::draw(int x, int y) {
             if (!underCheck(turn)) {
                 if (currentPiece != newPiece) {
                     bool moved = move(currentPiece, newPiece);
-                    if (moved) turn = ((turn == player_1) ? player_2 : player_1); 
+                    if (moved) {
+                        turn = ((turn == player_1) ? player_2 : player_1); 
+                        if (isStalemate(turn)) return;
+                        if (isCheckmate(turn)) return;
+                    }
                 }
             } else {
                 if (currentPiece != newPiece) {
                     bool moved = move(currentPiece, newPiece);
-                    if (moved && underCheck(turn)) {
-                        std::cout << "under";
-                        undo();
-                    } else {
-                        turn = ((turn == player_1) ? player_2 : player_1); 
+                    if (moved) {
+                        if (underCheck(turn)) {
+                            std::cout << "under";
+                            undo();
+                        } else {
+                            turn = ((turn == player_1) ? player_2 : player_1); 
+                            if (isStalemate(turn)) return;
+                            if (isCheckmate(turn)) return;
+                        }
                     }
                 }
             }
@@ -142,7 +145,16 @@ void Board::draw(int x, int y) {
 }
 
 bool Board::underCheck(int player) {
-    Piece* king = player == 1 ? whiteKing : blackKing;
+    Piece* king = nullptr;
+
+    for (int i=0; i<8; i++) {
+        for (int j=0; j<8; j++) {
+            Piece* piece = pieces[i][j];
+            if ((piece->getType() == WKING && player == 1) || (piece->getType() == BKING && player == 2)) {
+                king = piece;
+            }
+        }
+    }
 
     for (auto &row : pieces) {
         for (auto &piece : row) {
@@ -179,8 +191,17 @@ bool Board::isStalemate(int player) {
 
 bool Board::isCheckmate(int player) {
     if (!underCheck(player)) return false;
+    Piece* king = nullptr;
 
-    Piece* king = player == player_1 ? whiteKing : blackKing;
+    for (int i=0; i<8; i++) {
+        for (int j=0; j<8; j++) {
+            Piece* piece = pieces[i][j];
+            if ((piece->getType() == WKING && player == 1) || (piece->getType() == BKING && player == 2)) {
+                king = piece;
+            }
+        }
+    }
+
     int kingRow = king->getRow();
     int kingCol = king->getColumn();
 

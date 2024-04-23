@@ -31,9 +31,6 @@ class Board {
     raylib::Texture2D texture;
     Piece* pieces[8][8];
 
-    Piece* whiteKing;
-    Piece* blackKing;
-
     Piece* lastState[2] = {nullptr, nullptr};
     Piece* currentState[2] = {nullptr, nullptr};
     bool captured = false;
